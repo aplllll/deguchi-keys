@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deguchi Keys - Joki Guardian Tales</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#0f1220;color:#fff}
+header{text-align:center;padding:45px 20px;background:linear-gradient(180deg,#171a2e,#0f1220)}
+header h1{color:#22d3ee;font-size:32px;letter-spacing:1px}
+header p{color:#aab;margin-top:10px}
+.badge{display:inline-block;margin-top:14px;padding:8px 16px;border:1px solid #22d3ee;border-radius:20px;color:#22d3ee;font-size:13px}
+.search{max-width:900px;margin:24px auto 0;padding:0 20px}
+.search input,.search select{width:100%;padding:14px;border-radius:12px;border:1px solid #2a2f4a;background:#171a2e;color:#fff;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;padding:24px;max-width:1000px;margin:auto}
+.card{background:#171a2e;border:1px solid #2a2f4a;border-radius:16px;padding:22px}
+.card h3{font-size:18px}
+.card .harga{font-size:24px;color:#22d3ee;font-weight:bold;margin:12px 0}
+.card p{color:#aab;font-size:14px}
+.card button{width:100%;padding:13px;margin-top:16px;border:none;border-radius:10px;background:#22d3ee;color:#000;font-weight:bold;cursor:pointer}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);align-items:center;justify-content:center;z-index:99;padding:20px}
+.box{background:#171a2e;padding:26px;border-radius:16px;width:100%;max-width:400px;position:relative;border:1px solid #2a2f4a}
+.box input,.box textarea{width:100%;padding:13px;margin:8px 0;border-radius:10px;border:1px solid #2a2f4a;background:#0f1220;color:#fff}
+.box button{width:100%;padding:13px;background:#22d3ee;border:none;border-radius:10px;font-weight:bold;cursor:pointer;margin-top:10px}
+.close{position:absolute;top:8px;right:16px;font-size:30px;cursor:pointer}
+</style>
+</head>
+<body>
+
+<header>
+<h1>DEGUCHI KEYS</h1>
+<p>Joki Guardian Tales - Aman & Terpercaya</p>
+<div class="badge">Proses Cepat • Layanan 24 Jam • Order Via WhatsApp</div>
+</header>
+
+<div class="search">
+<input id="cari" placeholder="Cari jasa joki..." onkeyup="render()">
+<select id="urut" onchange="render()">
+<option value="default">Urutan: Default</option>
+<option value="murah">Termurah</option>
+<option value="mahal">Termahal</option>
+</select>
+</div>
+
+<div class="grid" id="list"></div>
+
+<div class="modal" id="modal">
+<div class="box">
+<span class="close" onclick="tutup()">&times;</span>
+<h2>Order Joki</h2>
+<p id="judul" style="color:#22d3ee;margin:10px 0"></p>
+<input id="nama" placeholder="Nama kamu">
+<input id="wa" placeholder="No WhatsApp kamu (08xxxx)">
+<input id="dunia" placeholder="Contoh: Dunia 1-5 / Level 20 / 1 Minggu">
+<textarea id="catatan" placeholder="Catatan tambahan"></textarea>
+<button onclick="order()">Kirim ke WhatsApp Admin</button>
+</div>
+</div>
+
+<script>
+const WA_ADMIN = '6282330816990'
+
+const PAKET = [
+  { nama:'Speed Run Season 1', harga:5000, desc:'Per dunia' },
+  { nama:'Speed Run Season 2', harga:7000, desc:'Per dunia' },
+  { nama:'Speed Run Season 3', harga:10000, desc:'Per dunia' },
+  { nama:'Clear B3 Season 1', harga:8000, desc:'Per dunia' },
+  { nama:'Clear B3 Season 2', harga:10000, desc:'Per dunia' },
+  { nama:'Clear B3 Season 3', harga:15000, desc:'Per dunia' },
+  { nama:'Rawat Akun & Rift Harian', harga:15000, desc:'1 Minggu' },
+  { nama:'Push Menara', harga:2000, desc:'Per level' },
+]
+
+let pilih = null
+
+function render(){
+  let data = [...PAKET]
+  const q = document.getElementById('cari').value.toLowerCase()
+  const urut = document.getElementById('urut').value
+  if(q) data = data.filter(p=>p.nama.toLowerCase().includes(q))
+  if(urut==='murah') data.sort((a,b)=>a.harga-b.harga)
+  if(urut==='mahal') data.sort((a,b)=>b.harga-a.harga)
+
+  document.getElementById('list').innerHTML = data.map(p=>{
+    const i = PAKET.indexOf(p)
+    return `<div class="card">
+      <h3>${p.nama}</h3>
+      <div class="harga">Rp ${p.harga.toLocaleString('id-ID')}</div>
+      <p>${p.desc}</p>
+      <button onclick="buka(${i})">Order Sekarang</button>
+    </div>`
+  }).join('') || '<p style="text-align:center;color:#aab">Jasa tidak ditemukan</p>'
+}
+
+function buka(i){
+  pilih = PAKET[i]
+  document.getElementById('judul').innerText = pilih.nama + ' - Rp ' + pilih.harga.toLocaleString('id-ID') + ' / ' + pilih.desc
+  document.getElementById('modal').style.display='flex'
+}
+function tutup(){ document.getElementById('modal').style.display='none' }
+
+function order(){
+  const nama=document.getElementById('nama').value.trim()
+  const wa=document.getElementById('wa').value.trim()
+  const dunia=document.getElementById('dunia').value.trim()
+  const catatan=document.getElementById('catatan').value.trim()
+  if(!nama||!wa||!dunia) return alert('Nama, WA, dan Dunia/Level wajib diisi')
+  const teks = `Halo Admin Deguchi Keys, saya ${nama}%0A%0AOrder: ${pilih.nama}%0AHarga: Rp ${pilih.harga.toLocaleString('id-ID')} / ${pilih.desc}%0ADetail: ${dunia}%0AWA saya: ${wa}%0ACatatan: ${catatan||'-'}`
+  window.open(`https://wa.me/${WA_ADMIN}?text=${teks}`,'_blank')
+}
+render()
+</script>
+</body>
+</html>
